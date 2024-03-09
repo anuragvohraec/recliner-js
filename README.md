@@ -4,7 +4,7 @@ Access your saved attachments locally with REST API:
 ```html
 <img src=`/recliner/dbname/doc_id/attachment_name`>
 ```
-[<img src="./demo/logo.png" width="100"/>](image.png) 
+[<img src="./demo/logo.png" width="100"/>](image.png) [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/vfm5jvgyo2)
 
 # Features
 1. Uses same REST API like Couch DB.
