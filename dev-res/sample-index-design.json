@@ -1,0 +1,21 @@
+{
+    "_id": "_design/easytypebasedreplication",
+    "language": "query",
+    "views": {
+      "by_type": {
+        "map": {
+          "fields": {
+            "type": "asc"
+          }
+        },
+        "options": {
+          "def": {
+            "fields": [
+              "type"
+            ]
+          }
+        }
+      }
+    },
+    "_rev": "1-7a5c73e01fc026f9041d2f5b44242790"
+  }

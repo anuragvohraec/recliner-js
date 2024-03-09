@@ -1,0 +1,23 @@
+{
+  "name": "recliner-js",
+  "version": "1.0.0",
+  "description": "A mini couchdb in your browser",
+  "private": true,
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "scripts": {
+    "build": "rm -rf dist/ && tsc --build src",
+    "predemo":"npx fix-esm-import-path dist/index.js",
+    "demo": "npx ws" 
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "fix-esm-import-path": "^1.5.0",
+    "ts-loader": "^8.0.12",
+    "ts-node": "^9.1.1",
+    "typescript": "^5.4.2",
+    "ws": "^8.16.0"
+  }
+}

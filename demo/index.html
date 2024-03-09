@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .pad10{
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div style="display: flex;align-items: center;font-size: 80px;padding-left: 22px;">
+            <img src="/demo/logo.png" style="width: 80px;"><span>RE</span><span style="color:#f79703;">C</span><span></span>LINER</span>
+        </div>
+        <div style="color:red;">Do open console to see logs, and network tabs too see REST API in action</div>
+    </div>
+    <div>
+        <div class="pad10">
+            <div>Insert</div>
+            <div><textarea id="json_input" placeholder="put a valid json to save" style="height: 121px; width: 191px;"></textarea></div>
+            <div><button id="submit_insert">InsertDoc</button></div>
+        </div>
+        <div class="pad10">
+            <div>Retrieve</div>
+            <div><button id="submit_retrieve">GetDoc</button></div>
+            <div id="doc_rec"></div>
+        </div>
+        <div class="pad10">
+            <div>Add Attachment</div>
+            <input type="file" id="filePicker" accept="image/png" >
+        </div>
+        <div class="pad10">
+            <div>Show Attachment</div>
+            <div><button id="submit_show_attachment">ShowAttachmentButton</button></div>
+        </div>
+        <div class="pad10" id="show_attachment">
+
+        </div>
+    </div>
+    <script type="importmap">
+        {
+            "imports":{
+                "recliner-js":"/dist/index.js"
+            }
+        }
+    </script>
+    <script>
+        (async()=>{
+            if('serviceWorker' in navigator){
+                try{
+                    let t;
+                    const reg = await navigator.serviceWorker.register("./sw.js",{
+                        type:"module"
+                    });
+                    reg.onupdatefound = (e)=>{
+                        t = setInterval(()=>{
+                            if(reg.active){
+                                clearInterval(t);
+                                location.reload();
+                            }
+                        },2000);
+                    };
+                }catch(e){
+                    console.error("Recliner failed to register");
+                    console.error(e);
+                }
+            }else{
+                console.log("Service worker not supported");
+            }
+        })();
+    </script>
+    <script type="module">
+        import {UsageDAO} from "recliner-js";
+        const dbname="test1";
+        
+        //recliner js can only be used once Service worker has been registered.
+        const systemReady=new Promise(res=>{
+            setTimeout(async ()=>{
+                //create DB
+                await UsageDAO.checkAndCreateDB(dbname,true);
+                res(true);
+            },3000);
+        });
+
+        let DocCreated;
+        
+        //Insert doc handling
+        {
+            const json_input= document.querySelector("#json_input");
+            json_input.value='{\n"name":"person4",\n"age":23\n}';
+            const submit_insert= document.querySelector("#submit_insert");
+            submit_insert.addEventListener("click",async(e)=>{
+                if(json_input.value){
+                    try {
+                        const doc=JSON.parse(json_input.value);
+                        if(doc){
+                            await systemReady;
+                            
+                            //INSERTING DOC
+                            DocCreated = await UsageDAO.postADoc(dbname,doc);
+
+                            if(DocCreated){
+                                console.log("Doc Saved");
+                            }else{
+                                console.error("Doc not Saved!");
+                            }
+                        }else{
+                            alert("Invalid JSON1");
+                        }
+                    } catch (er) {
+                        alert("Invalid JSON2", er);
+                    }   
+                }
+            });
+        }
+
+        //getting doc
+        {
+            const submit_retrieve= document.querySelector("#submit_retrieve");
+            submit_retrieve.addEventListener("click",async(e)=>{
+                if(!DocCreated){
+                    alert("Please insert a doc first");
+                }else{
+                    await systemReady;
+
+                    //READING Doc
+                    const docRead= await UsageDAO.readADoc(dbname,DocCreated._id);
+
+                    const json_input= document.querySelector("#doc_rec");
+                    json_input.textContent=JSON.stringify(docRead);
+                }
+            });
+        }
+
+        let fileName;
+
+        //add Attachment to doc
+        {
+            const fileInput = document.getElementById('filePicker');
+
+            fileInput.addEventListener('change', async(event) => {
+                if(!DocCreated){
+                    alert("Please insert a doc first");
+                }else{
+                    const file = event.target.files[0];
+                    // Check if the file is a PNG
+                    if (file && file.type === 'image/png') {
+                        // You can perform further operations with the selected PNG file here
+                        await systemReady;
+                        fileName=file.name;
+                        
+
+                        //SAVING ATTACHMENT
+                        if(await UsageDAO.addAttachmentsToDocID(dbname,DocCreated._id,{
+                            "my_image.png":file
+                        })){
+                            console.log("Attachment saved");
+                        }else{
+                            console.error("Attachment not saved");
+                        }
+                    } else {
+                        console.log('Please select a PNG file.');
+                    }
+                }
+            });
+        }
+
+
+        {
+            const submit_show_attachment= document.querySelector("#submit_show_attachment");
+            submit_show_attachment.addEventListener("click",async(e)=>{
+                if(!DocCreated){
+                    alert("Please insert a doc first");
+                }else{
+                    if(!fileName){
+                        alert("Please insert an attachment first");
+                    }else{
+                        await systemReady;
+                        const show_attachmentDiv = document.querySelector("#show_attachment");
+                        const newImage = document.createElement('img');
+                        newImage.src=`/recliner/${dbname}/${DocCreated._id}/my_image.png`;
+                        newImage.alt = 'Example Image';
+                        show_attachmentDiv.appendChild(newImage);
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
