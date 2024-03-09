@@ -2,7 +2,6 @@
   "name": "recliner-js",
   "version": "1.0.0",
   "description": "A mini couchdb in your browser",
-  "private": true,
   "main": "dist/index.js",
   "module": "dist/index.js",
   "scripts": {
