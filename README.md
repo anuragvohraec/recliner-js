@@ -1,18 +1,19 @@
-# recliner-js
+# Recliner-JS
 A CouchDB like DB, which runs in your browser.\
 Access your saved attachments locally with REST API:
 ```html
 <img src=`/recliner/dbname/doc_id/attachment_name`>
 ```
+[<img src="./demo/logo.png" width="100"/>](image.png) 
 
 # Features
-1. Works inside service worker, and hence GUI can use same rest CouchDB API but with in browser recliner DB.
+1. Uses same REST API like Couch DB.
 2. Implements CouchDB replicator protocol for seem less replication with backend.
 3. Can Lazy load Blobs(video media) from cloud.
 4. Partial content and stream supported.
 4. Uses IndexedDB as its backend DB and hence no storage restrictions.
 5. Mango like queries for searching and replication.
-6. Typescript based client to access this API.
+6. Typescript based client to access REST API.
 
 # Usage
 In your service worker add this:
