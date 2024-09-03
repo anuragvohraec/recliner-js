@@ -15,6 +15,16 @@ Access your saved attachments locally with REST API:
 5. Mango like queries for searching and replication.
 6. Typescript based client to access REST API.
 
+# Build and integeration
+## With Vanila JS
+1. **git clone** the package.
+2. `npm run jsbuild` to create a rollup ES6 bundle `dist/index.js`
+3. In your service worker you can import `Recliner` this way `import {Recliner} from '.path/to/recliner-js/index.js';`
+
+## With Typescript
+1. Simple install it `npm i recliner-js`
+2. import it in your typescript as usual `import {Recliner} from 'recliner-js';`
+
 # Usage
 In your service worker add this:
 ```js
@@ -196,3 +206,7 @@ Type this commands in order
 2. `npm run predemo` adds ".js" extension to build for demo purpose.
 3. `npm run demo` : open `http://localhost:8000/demo/index.html` to view the demo
 
+
+# Version update
+## 1.0.1
+1. Added support for rollup, so recliner an be used with vanilla JS. See `Build and integeration` section in the readme to see how to use in vanilla js.
