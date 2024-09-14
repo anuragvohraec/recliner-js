@@ -2429,6 +2429,10 @@ in the doc, it will be stored as :
                                         const attachment_info = doc.attachments[attachment_name];
                                         //this means we have attachments too
                                         const rak = attachment_info[R.recliner_attachment_key];
+                                        if(!attachment_info[R.cloud_url]){
+                                            //http://localhost:5984/mart_data/1bc11f92df41eca8e90dadebb797e72dc051175c/img.webp
+                                            attachment_info[R.cloud_url]=Utils.build_path(replicationInfo.source.url,`/${doc._id}/${attachment_name}`);
+                                        }
                                         const r2 = await fetch(attachment_info[R.cloud_url],{
                                             method:"GET",
                                             headers: replicationInfo.source.headers
