@@ -209,6 +209,7 @@ export class Recliner{
                 case Action.QUERY_DB_DESIGN: return await this.QUERY_DB_DESIGN(direction,req);
                 case Action.CHECK_DB_DESIGN: return await this.CHECK_DB_DESIGN(direction);
                 case Action.RUN_UPDATE_FUNCTIONS: return await this.RUN_UPDATE_FUNCTIONS(direction,req);
+                case Action.SINGLE_TX_PUT: return await this.SINGLE_TX_PUT(direction, req);
                 default: break;
             }
             return Utils.sendJsonResponse({error: "No action defined for it"},404);
@@ -690,7 +691,7 @@ export class Recliner{
         }
         */
         //1. lets get the existing MVCC entry
-        let mvcc_doc:{_id:string,_revisions:{start:number,ids:string[]}}=await this.dbdaomap[dbname].read(R._mvcc,doc[R._id]);
+        let mvcc_doc:{_id:string,_revisions:MVCC}=await this.dbdaomap[dbname].read(R._mvcc,doc[R._id]);
         
         //2. update it
         if(!mvcc_doc){
@@ -925,6 +926,110 @@ export class Recliner{
             return Utils.sendOnlyStatus(500,"Unknown issue!");
         }
     }
+
+
+    private async SINGLE_TX_PUT(direction: PathDirection, req: Request){
+        try{
+            const dbname = direction.path_params["db"];
+            //check DB exist
+            const foundNoDB = this._ifFoundNoDBCreateResponse(dbname);
+            if(foundNoDB){
+                return foundNoDB;
+            }
+            
+            const body:{new_edits:boolean,docs:DBDoc[]} = await req.json();
+            
+            let filteredDocs:DBDoc[] =[];
+            if(body.new_edits){
+                //new_edits false happens only when user knows what they are doing, say by replication scenario.
+                //and can be allowed to override something
+
+                const dbDesign:DBDesign = this._db_design_map[dbname];
+                if(dbDesign && dbDesign.doc_validation_function){
+                    for(let doc of body.docs){
+                        let valMessage = await dbDesign.doc_validation_function({recliner:this,direction,req},doc,"update");
+                        if(!valMessage){
+                            //if validation fails the doc is skipped
+                            filteredDocs.push(doc);
+                        }
+                    }
+                }
+            }else{
+                filteredDocs=body.docs;
+            }
+
+            const docsMap:{_id:DBDoc[],_mvcc:{_id:string,_revisions:MVCC}[],_changes:any[]} = {_id:[],_mvcc:[],_changes:[]};
+            
+            
+            for(let doc of filteredDocs){
+                //update id and rev on all docs to new value
+                {
+                    if(!doc[R._id]){
+                        doc[R._id]=await EncryptionEngine.random_id();
+                    }
+            
+                    const old_rev:string = doc[R._rev];
+                    let new_rev:string;
+                    if(!old_rev){
+                        new_rev = `1-${await EncryptionEngine.sha1_hash(JSON.stringify(doc))}`
+                    }else{
+                        const t = old_rev.split("-");
+                        let n = parseInt(t[0]);
+                        n++;
+                        delete doc[R._rev];
+                        new_rev = `${n}-${await EncryptionEngine.sha1_hash(JSON.stringify(doc))}`
+                    }
+                    doc[R._rev]=new_rev;
+                }
+
+                if(body.new_edits){
+                    //handle mvcc
+                    {
+                        //1. lets get the existing MVCC entry
+                        let mvcc_doc:{_id:string,_revisions:{start:number,ids:string[]}}=await this.dbdaomap[dbname].read(R._mvcc,doc[R._id]);
+                        
+                        //2. update it
+                        if(!mvcc_doc){
+                            mvcc_doc={_id:doc[R._id],_revisions:{start:0,ids:[]}}
+                        }
+                        let rev = doc[R._rev];
+                        let r = rev.split("-");
+                        mvcc_doc._revisions.start=parseInt(r[0]);
+                        mvcc_doc._revisions.ids.unshift(r[1]);
+                        
+                        docsMap._mvcc.push(mvcc_doc);
+                    }
+
+                    //TODO handle deleting of attachments if attachments are modified or docs are deleted
+
+                    {
+                        const isDeleted = doc[R._deleted]?true:false;
+                        let n = this.dbdaomap[dbname].change_seq;
+                        const seq = `${n}-${EncryptionEngine.uuid()}`;
+                        let changeDoc:any = {id: doc[R._id],changes:[{rev:doc[R._rev]}],seq:seq, _id:n};
+                        if(isDeleted){
+                            changeDoc[R.deleted]=true;
+                        }
+                        docsMap._changes.push(changeDoc);
+                    }
+                }
+
+                docsMap._id.push(doc);
+            }
+
+            //do bulk insert
+            if(await this.dbdaomap[dbname].singleTxPut([R._id,R._mvcc,R._changes],docsMap)){
+                return Utils.sendJsonResponse({ok: true},200); 
+            }else{
+                return Utils.sendJsonResponse({ok: false},500,"MultiPut in one TX failed"); 
+            }
+
+        }catch(e){
+            console.error(e);
+            return Utils.sendOnlyStatus(500,"Unknown issue!");
+        }
+    }
+
 
     private async PUT_A_DOC(direction: PathDirection, req: Request){
         try{

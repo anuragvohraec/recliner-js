@@ -18,6 +18,7 @@ class RECLINER_API_PATH{
     static DB_DELETE_INDEX = "/recliner/:db/_index/:ddoc/json/:name";
     static DB_DB_DESIGN="/recliner/:db/_db_design";
     static DB_RUN_UPDATE_FUNCTIONS="/recliner/:db/_run_update_function";
+    static DB_SINGLE_TX_PUT="/recliner/:db/_single_tx_put";
 }
 
 class HttpMethod{
@@ -121,7 +122,12 @@ export enum Action {
      /**
       * Will run update function on DB Doc
       */
-     RUN_UPDATE_FUNCTIONS
+     RUN_UPDATE_FUNCTIONS,
+
+     /**
+      * Will PUT BULK docs 
+      */
+     SINGLE_TX_PUT
   }
 
 export class URIEngine{
@@ -374,6 +380,13 @@ export class URIEngine{
                                     return {action:Action.DELETE_THE_ATTACHMENT_OF_THE_DOC, direction: r};    
                                 default:
                                     return {action:Action.CASE_DO_NOT_EXIST, direction: r};    
+                            }
+                        }
+                        case RECLINER_API_PATH.DB_SINGLE_TX_PUT:{
+                            switch(method){
+                                case HttpMethod.POST:{
+                                    return {action:Action.SINGLE_TX_PUT,direction:r};
+                                }
                             }
                         }   
                     }

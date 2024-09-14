@@ -208,5 +208,8 @@ Type this commands in order
 
 
 # Version update
+## 1.0.2
+1. Added POST `_bulk_docs` so that insert of mutiple docs can be done in single transaction.
+
 ## 1.0.1
-1. Added support for rollup, so recliner an be used with vanilla JS. See `Build and integeration` section in the readme to see how to use in vanilla js.
+1. Added support for rollup, so recliner can be used with vanilla JS. See `Build and integeration` section in the readme to see how to use in vanilla js.

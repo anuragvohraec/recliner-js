@@ -569,4 +569,18 @@ console.log("Create index",await res.text(), res.status, "ETag: ", res.headers.g
         }
         return foundDocs.docs;
     }
+
+    static async putMultiDocsInSingleTx({dbname,docs}:{dbname:string,docs:DBDoc[]},new_edits:true){
+        const res = await fetch(`/recliner/${dbname}/_single_tx_put`,{
+            method:"PUT",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({docs,new_edits})
+        });
+        if(res.status!==200){
+            console.error(res.status, res.statusText);
+            return false;
+        }else{
+            return true;
+        }
+    }
 }

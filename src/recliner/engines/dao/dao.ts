@@ -294,6 +294,28 @@ export abstract class DAO {
         }
     }
 
+    async singleTxPut(dblist:string[], docsMap:Record<string,any[]>){
+        return new Promise<boolean>(res=>{
+            //check if it exist
+            const tx = this.db.transaction(dblist, 'readwrite');
+            for(let dbname in docsMap){
+                const os = tx.objectStore(dbname);
+                for(let d of docsMap[dbname]){
+                    os.put(d);
+                }
+            }
+            tx.oncomplete=(e)=>{
+                res(true);
+            };
+            tx.onerror=(e)=>{
+                res(false);
+            }
+            tx.onabort=(e)=>{
+                res(false);
+            }
+        });
+    }
+
     /**
      * creates if no present, else updates the existing doc
      * @param dbname 
