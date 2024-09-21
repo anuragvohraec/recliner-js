@@ -177,6 +177,7 @@ export class URIEngine{
         this.define = RECLINER_API_PATH.DB_DB_DESIGN
         this.define = RECLINER_API_PATH.RECLINER_DELETE
         this.define = RECLINER_API_PATH.DB_RUN_UPDATE_FUNCTIONS
+        this.define = RECLINER_API_PATH.DB_SINGLE_TX_PUT
 
         return true;
     }
@@ -336,6 +337,15 @@ export class URIEngine{
                                     return {action:Action.CASE_DO_NOT_EXIST, direction: r};
                             }
                         }
+                        case RECLINER_API_PATH.DB_SINGLE_TX_PUT:{
+                            switch(method){
+                                case HttpMethod.PUT:{
+                                    return {action:Action.SINGLE_TX_PUT,direction:r};
+                                }
+                                default:
+                                    return {action:Action.CASE_DO_NOT_EXIST, direction: r};
+                            }
+                        }  
                     }
                 }
                 case 5:{
@@ -381,14 +391,7 @@ export class URIEngine{
                                 default:
                                     return {action:Action.CASE_DO_NOT_EXIST, direction: r};    
                             }
-                        }
-                        case RECLINER_API_PATH.DB_SINGLE_TX_PUT:{
-                            switch(method){
-                                case HttpMethod.PUT:{
-                                    return {action:Action.SINGLE_TX_PUT,direction:r};
-                                }
-                            }
-                        }   
+                        } 
                     }
                 }
                 case 7:{
