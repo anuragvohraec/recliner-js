@@ -384,7 +384,7 @@ export class URIEngine{
                         }
                         case RECLINER_API_PATH.DB_SINGLE_TX_PUT:{
                             switch(method){
-                                case HttpMethod.POST:{
+                                case HttpMethod.PUT:{
                                     return {action:Action.SINGLE_TX_PUT,direction:r};
                                 }
                             }
