@@ -224,6 +224,10 @@ export interface ViewResultFilterFunction{
     (reclinerReqInfo:ReclinerRequestInfo,viewRowsList:ViewRow[]):Promise<ViewRow[]>;
 }
 
+export interface RenderFunction{
+    (prevResult:any,input_data?:any):Promise<{content_type:string,body:any}>
+}
+
 /**
  * Is configured on DB level.
  * Stored in _system DB.
@@ -255,6 +259,8 @@ export interface DBDesign{
      * Views are only supported on remote system. Recliner do not have views yet.
      */
      view_result_filter_functions?:Record<string,ViewResultFilterFunction>;
+
+     render_functions?:Record<string,RenderFunction>;
 }
 
 export interface DBDesignDoc{
@@ -269,6 +275,8 @@ export interface DBDesignDoc{
      * This functions are used to filter view result before replicating them to local DB.
      */
     view_result_filter_functions?:Record<string,string>;
+
+    render_functions?:Record<string,string>;
 }
 
 export interface DBRunUpdateFunctionsRequest{
