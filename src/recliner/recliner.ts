@@ -3,7 +3,7 @@ import {DBDetails, Design , FindResult} from './engines/dao/dao';
 import { EncryptionEngine } from "./engines/encryptionengine";
 import { URIEngine, Action} from "./engines/uriengine";
 import { FlattenObject, Utils} from "./utils";
-import {ChangeDoc, ChangeReqJson, ReplicationInfoJSON, ReplicationResponseJSON, RepLogs, RepLogsHistory, RevDiffReq, RevDiffRes, Selector, HttpHeader, BulkDocRequestBody, DBPutResponse, DBDesign, DBDocValidationFunction, DBDesignDoc, MapReduceQuery, CollectFunction, ReduceFunction, MapFunction, DBRunUpdateFunctionsRequest, DBDocUpdateFunction, DBDoc, DBDocAttachmentInfo, MVCC, PageData, ViewRow, ViewResultFilterFunction} from './interfaces';
+import {ChangeDoc, ChangeReqJson, ReplicationInfoJSON, ReplicationResponseJSON, RepLogs, RepLogsHistory, RevDiffReq, RevDiffRes, Selector, HttpHeader, BulkDocRequestBody, DBPutResponse, DBDesign, DBDocValidationFunction, DBDesignDoc, MapReduceQuery, CollectFunction, ReduceFunction, MapFunction, DBRunUpdateFunctionsRequest, DBDocUpdateFunction, DBDoc, DBDocAttachmentInfo, MVCC, PageData, ViewRow, ViewResultFilterFunction,RenderFunction} from './interfaces';
 import { ReclinerDAO } from "./engines/dao/reclinerdao";
 
 const _recliner_version =1;
@@ -361,6 +361,18 @@ export class Recliner{
                 let t = new Function("return "+dbDesignDoc.update_functions[name]);
                 let f:ViewResultFilterFunction = t();
                 dbDesign.view_result_filter_functions[name]=f;
+            }
+        }
+
+        if(dbDesignDoc.render_functions){
+            dbDesign.render_functions={};
+            for(let name of Object.keys(dbDesign.render_functions)){
+                if(!name.startsWith("rn_")){
+                    throw "Render function should start with rn_";
+                }
+                let t = new Function("return "+dbDesignDoc.render_functions[name]);
+                let f:RenderFunction = t();
+                dbDesign.render_functions[name]=f;
             }
         }
 
@@ -1411,7 +1423,20 @@ export class Recliner{
 
             //TODO passing bookmark
             if(find_result){
-                return Utils.sendJsonResponse(find_result,200);
+                if(query.render){
+                    let r={body:(find_result.docs as any),content_type:"application/json"};
+                    for(let rnf_name of query.render.pipeline){
+                        let rnf = this._db_design_map[dbname].render_functions[rnf_name];
+                        if(!rnf){
+                            return Utils.sendJsonResponse({ok:false,msg:`${rnf_name} render funtion not found`},404);
+                        }else{
+                            r = await rnf(r,query.render.input_data);
+                        }
+                    }
+                    return Utils.sendCustomResponse(r.body,200,r.content_type);
+                }else{
+                    return Utils.sendJsonResponse(find_result,200);
+                }
             }else{
                 throw `No find result found!`;
             }
