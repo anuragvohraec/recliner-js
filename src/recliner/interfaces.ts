@@ -260,6 +260,9 @@ export interface DBDesign{
      */
      view_result_filter_functions?:Record<string,ViewResultFilterFunction>;
 
+     /**
+      * For example is used to convert a query into an HTML document (or any other format instead of json)
+      */
      render_functions?:Record<string,RenderFunction>;
 }
 
