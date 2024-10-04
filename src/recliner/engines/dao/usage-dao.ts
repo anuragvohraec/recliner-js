@@ -330,7 +330,10 @@ console.log("Create index",await res.text(), res.status, "ETag: ", res.headers.g
 
     static async findByPagination<T>(info:{
         dbname:string,selector:any,sort?:any, bookmark?:string,limit?:number
-        fields?:string[]
+        fields?:string[],render?:{
+            pipeline:string[],
+            input_data: any;
+        }
     }):Promise<ReclinerFindResult<T>>{
         const readDocs = await fetch(`/recliner/${info.dbname}/_find`,{
             method: "POST",
@@ -342,7 +345,8 @@ console.log("Create index",await res.text(), res.status, "ETag: ", res.headers.g
                 sort: info.sort,
                 bookmark: info.bookmark,
                 limit: info.limit??-1,
-                fields: info.fields
+                fields: info.fields,
+                render: info.render
             })
         });
         if(readDocs.status === 200){
