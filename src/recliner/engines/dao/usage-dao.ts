@@ -545,11 +545,12 @@ console.log("Create index",await res.text(), res.status, "ETag: ", res.headers.g
      * @param param0 
      * @returns 
      */
-    static async findOne<T>({dbname,selector}:{dbname:string,selector:any}){
+    static async findOne<T>({dbname,selector,sort}:{dbname:string,selector:any,sort?:any}){
         const t = await this.findByPagination<T>({
             dbname,
             selector,
-            limit:1
+            limit:1,
+            sort
         });
         return t.docs[0];
     }
