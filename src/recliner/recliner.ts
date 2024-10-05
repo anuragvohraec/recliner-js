@@ -1357,7 +1357,19 @@ export class Recliner{
             }
 
             let index_fields: string[] = [];
-            const query:RecQuery=await req.json(); 
+            let query:RecQuery;
+            if(req.method==="POST"){
+                query = await req.json(); 
+            }else if(req.method==="GET"){
+                try{
+                    let u = new URL(req.url);
+                    let q = u.searchParams.get("q"); 
+                    query=JSON.parse(decodeURI(q));   
+                }catch(e){
+                    return Utils.sendOnlyStatus(400);
+                }
+            }
+            
 
             const limit = query.limit!==undefined?query.limit:-1;
             const skip = query.skip!=undefined?query.skip:0;

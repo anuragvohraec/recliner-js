@@ -311,6 +311,8 @@ export class URIEngine{
                         case RECLINER_API_PATH.DB_FIND:{
                             switch(method){
                                 case HttpMethod.POST:
+                                    return {action: Action.FIND_IN_INDEX, direction: r};
+                                case HttpMethod.GET:
                                     return {action: Action.FIND_IN_INDEX, direction: r}
                                 default:
                                     return {action:Action.CASE_DO_NOT_EXIST, direction: r};  
