@@ -1364,7 +1364,7 @@ export class Recliner{
                 try{
                     let u = new URL(req.url);
                     let q = u.searchParams.get("q"); 
-                    query=JSON.parse(decodeURI(q));   
+                    query=JSON.parse(atob(q));   
                 }catch(e){
                     return Utils.sendOnlyStatus(400);
                 }
