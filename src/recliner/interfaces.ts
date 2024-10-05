@@ -355,3 +355,25 @@ export interface ViewRow{
     key:any;
     value:any;
 }
+
+
+export interface Sort{
+    [field_name: string]: "asc" | "desc";
+}
+
+export interface RecQuery{
+    selector: Selector;
+    use_index:string[];
+    limit?:number;
+    skip?:number;
+    bookmark?:string;
+    sort?:Sort;
+    fields?:string[];
+    /**
+     * an array fo rendering functions to give an output in a format other than json
+     */
+    render?:{
+        pipeline:string[],
+        input_data: any;
+    }
+}

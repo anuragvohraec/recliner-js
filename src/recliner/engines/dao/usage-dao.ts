@@ -1,4 +1,4 @@
-import { DBDesignDoc, DBDoc, DBPutResponse, DBRunUpdateFunctionsRequest, ExecutionStats, MapReduceQuery, ReplicationInfoJSON } from "../../interfaces";
+import { DBDesignDoc, DBDoc, DBPutResponse, DBRunUpdateFunctionsRequest, ExecutionStats, MapReduceQuery, ReplicationInfoJSON ,RecQuery} from "../../interfaces";
 import { EncryptionEngine } from "../encryptionengine";
 
 export interface ReclinerFindResult<T>{docs:T[],bookmark:string,execution_stats:ExecutionStats}
@@ -330,10 +330,7 @@ console.log("Create index",await res.text(), res.status, "ETag: ", res.headers.g
 
     static async findByPagination<T>(info:{
         dbname:string,selector:any,sort?:any, bookmark?:string,limit?:number
-        fields?:string[],render?:{
-            pipeline:string[],
-            input_data: any;
-        }
+        fields?:string[]
     }):Promise<ReclinerFindResult<T>>{
         const readDocs = await fetch(`/recliner/${info.dbname}/_find`,{
             method: "POST",
@@ -346,11 +343,28 @@ console.log("Create index",await res.text(), res.status, "ETag: ", res.headers.g
                 bookmark: info.bookmark,
                 limit: info.limit??-1,
                 fields: info.fields,
-                render: info.render
             })
         });
         if(readDocs.status === 200){
             return await readDocs.json();
+        }else{
+            console.log(readDocs.status, readDocs.statusText);
+            
+            return;
+        }
+    }
+
+
+    static async render<T>(dbname:string,query:RecQuery):Promise<Blob>{
+        const readDocs = await fetch(`/recliner/${dbname}/_find`,{
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(query)
+        });
+        if(readDocs.status === 200){
+            return await readDocs.blob();
         }else{
             console.log(readDocs.status, readDocs.statusText);
             

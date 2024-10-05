@@ -3,7 +3,7 @@ import {DBDetails, Design , FindResult} from './engines/dao/dao';
 import { EncryptionEngine } from "./engines/encryptionengine";
 import { URIEngine, Action} from "./engines/uriengine";
 import { FlattenObject, Utils} from "./utils";
-import {ChangeDoc, ChangeReqJson, ReplicationInfoJSON, ReplicationResponseJSON, RepLogs, RepLogsHistory, RevDiffReq, RevDiffRes, Selector, HttpHeader, BulkDocRequestBody, DBPutResponse, DBDesign, DBDocValidationFunction, DBDesignDoc, MapReduceQuery, CollectFunction, ReduceFunction, MapFunction, DBRunUpdateFunctionsRequest, DBDocUpdateFunction, DBDoc, DBDocAttachmentInfo, MVCC, PageData, ViewRow, ViewResultFilterFunction,RenderFunction} from './interfaces';
+import {ChangeDoc, ChangeReqJson, ReplicationInfoJSON, ReplicationResponseJSON, RepLogs, RepLogsHistory, RevDiffReq, RevDiffRes, Selector, HttpHeader, BulkDocRequestBody, DBPutResponse, DBDesign, DBDocValidationFunction, DBDesignDoc, MapReduceQuery, CollectFunction, ReduceFunction, MapFunction, DBRunUpdateFunctionsRequest, DBDocUpdateFunction, DBDoc, DBDocAttachmentInfo, MVCC, PageData, ViewRow, ViewResultFilterFunction,RenderFunction,RecQuery,Sort} from './interfaces';
 import { ReclinerDAO } from "./engines/dao/reclinerdao";
 
 const _recliner_version =1;
@@ -25,29 +25,6 @@ interface CREATE_INDEX_BODY{
     index: {fields: string[],sort?: {[key:string]:"asc"|"desc"}[]};
     ddoc: string;
     name: string
-}
-
-
-
-export interface Sort{
-    [field_name: string]: "asc" | "desc";
-}
-
-interface FIND_IN_INDEX_BODY{
-    selector: Selector;
-    use_index:string[];
-    limit?:number;
-    skip?:number;
-    bookmark?:string;
-    sort?:Sort;
-    fields?:string[];
-    /**
-     * an array fo rendering functions to give an output in a format other than json
-     */
-    render?:{
-        pipeline:string[],
-        input_data: any;
-    }
 }
 
 
@@ -1380,7 +1357,7 @@ export class Recliner{
             }
 
             let index_fields: string[] = [];
-            const query:FIND_IN_INDEX_BODY=await req.json(); 
+            const query:RecQuery=await req.json(); 
 
             const limit = query.limit!==undefined?query.limit:-1;
             const skip = query.skip!=undefined?query.skip:0;

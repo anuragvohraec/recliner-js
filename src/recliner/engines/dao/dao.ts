@@ -1,6 +1,6 @@
 
-import { Bookmark, DifferentOperatorInfo, DifferentRulesOperators, ExecutionStats, MostEfficientIndex } from "../../interfaces";
-import { R, Sort } from "../../recliner";
+import { Bookmark, DifferentOperatorInfo, DifferentRulesOperators, ExecutionStats, MostEfficientIndex,Sort } from "../../interfaces";
+import { R } from "../../recliner";
 import { CondOps, Utils, FlattenObject, FlattenSelector } from "../../utils";
 import {Selector} from '../../interfaces';
 import { ComparatorCake, JSObjectComparators } from "../comparator";
