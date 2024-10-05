@@ -208,8 +208,13 @@ Type this commands in order
 
 
 # Version update
+## 1.0.3
+1. Added `redner_functions` in DB design doc. Using which custom output, orher than json can be created for queries.
+2. Added `UsageDAO.render` method for get cutom rendered blob outputs
+3. Added `GET` method support for `/recliner/:dbname/_find?q=${btoa(JSON.stringify(query))}`, so the custom render can be created from URL too.
+
 ## 1.0.2
-1. Added POST `_bulk_docs` so that insert of mutiple docs can be done in single transaction.
+1. Added PUT `_single_tx_put` so that insert of mutiple docs can be done in single transaction.
 
 ## 1.0.1
 1. Added support for rollup, so recliner can be used with vanilla JS. See `Build and integeration` section in the readme to see how to use in vanilla js.
