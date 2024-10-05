@@ -343,7 +343,7 @@ export class Recliner{
 
         if(dbDesignDoc.render_functions){
             dbDesign.render_functions={};
-            for(let name of Object.keys(dbDesign.render_functions)){
+            for(let name of Object.keys(dbDesignDoc.render_functions)){
                 if(!name.startsWith("rn_")){
                     throw "Render function should start with rn_";
                 }
