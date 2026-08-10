@@ -1,3 +1,5 @@
+
+
 # Recliner-JS
 A CouchDB like DB, which runs in your browser.\
 Access your saved attachments locally with REST API:
@@ -201,7 +203,7 @@ export interface DBDesignDoc{
 
 # Running the Demo
 Type this commands in order
-1. `npm run i` install dev dependencies
+1. `npm i` install dev dependencies
 1. `npm run build` builds for typescript system
 2. `npm run predemo` adds ".js" extension to build for demo purpose.
 3. `npm run demo` : open `http://localhost:8000/demo/index.html` to view the demo
